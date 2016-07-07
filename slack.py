@@ -1,5 +1,6 @@
 import logging
 import itertools
+import requests
 
 from slackclient import SlackClient
 
@@ -16,6 +17,7 @@ class UniChatSlackClient(object):
         if not sc.rtm_connect():
             raise SlackException("Unable to connect to Slack (invalid token?)")
         logging.info("Connected to slack WebSocket")
+        self.token = token
         self.client = sc
         self.my_id = sc.server.login_data[u'self'][u'id']
         users = sc.server.login_data[u'users']
@@ -62,11 +64,27 @@ class UniChatSlackClient(object):
     def send_message_to_channel(self, channel, message):
         self.client.rtm_send_message(channel, message)
 
-    def send_image_to_channel(self, channel, image_path, title):
-        with open(image_path, 'rb') as f:
+    def send_file_to_channel(self, channel, file_path, title):
+        with open(file_path, 'rb') as f:
             response = self.client.api_call('files.upload',
                                             file=f,
                                             title=title,
                                             channels=channel)
             print response
             return response[u'ok']
+
+    def extract_file(self, msg, file_path):
+        file_url = msg[u'file'][u'url_private']
+        return self.download_image(file_url, file_path)
+
+    def download_file(self, file_url, file_path):
+        headers = {"Authorization": "Bearer %s" % self.token}
+        r = requests.get(file_url, headers=headers, stream=True)
+        if r.status_code == requests.codes.ok:
+            with open(file_path, 'wb') as f:
+                for block in r.iter_content(1024):
+                    f.write(block)
+            return True
+        else:
+            print("failed to download image: %s" % r.status_code)
+            return False
