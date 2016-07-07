@@ -18,7 +18,16 @@ class UniChatSlackClient(object):
         logging.info("Connected to slack WebSocket")
         self.client = sc
         self.my_id = sc.server.login_data[u'self'][u'id']
+        users = sc.server.login_data[u'users']
+        self.team_members = dict([(user[u'id'], self.__name_tag(user)) for user in users])
         self.related_channels = {}
+
+    def __name_tag(self, user):
+        profile = user[u'profile']
+        if u'first_name' in profile and u'last_name' in profile:
+            return profile[u'first_name'] + " " + profile[u'last_name']
+        else:
+            return user[u'name']
 
     def attach_channel(self, name):
         c = self.client.server.channels.find(name)
@@ -41,6 +50,9 @@ class UniChatSlackClient(object):
             if c.id == event[u'channel']:
                 return True
         return False
+
+    def get_user_name(self, user_id):
+        return self.team_members.get(user_id, "unknown")
 
     def read_messages_in_channels(self):
         events = self.client.rtm_read()

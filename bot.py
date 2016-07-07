@@ -49,7 +49,8 @@ class Bot(object):
         for msg in msgs:
             if self.wechatGroup:
                 print("Sending message to wechat: %s" % msg[u'text'])
-                self.wechatClient.send_msg(msg[u'text'], self.wechatGroup)
+                user_name = self.slackClient.get_user_name(msg[u'user'])
+                self.wechatClient.send_msg(user_name + ": " + msg[u'text'], self.wechatGroup)
             else:
                 print("No WeChat group")
 
