@@ -25,7 +25,7 @@ class Bot(object):
         self.wechatClient = WeChatClient()
         self.translator = Translator(googleApikey)
         self.emojiHandler = EmojiHandler()
-        self.media_types = set(['Picture', 'Recording', 'Video'])
+        self.media_types = set(['Picture', 'Recording', 'Video', 'Attachment'])
         self.enableTranslator = False
 
     def bot_main(self):
