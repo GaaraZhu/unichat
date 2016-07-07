@@ -101,8 +101,8 @@ class Bot(object):
                 nick_name = msg['ActualNickName']
 
                 if u'apis.map.qq.com' in msg[u'Url']:
-                    link = u'https://www.google.com/maps/place/' + urllib.quote(original_msg.split(':')[0])
-                    self.channel.send_message(u"%s: %s" % (nick_name, link))
+                    location = original_msg.split(':')[0]
+                    message = u"%s shared a location: %s \n\n %s" % (nick_name, location, 'https://www.google.com/maps/place/' + urllib.quote(location))
                 else:
                     update_emoji_result = self.emojiHandler.weChat2Slack(original_msg, lambda x: x)
                     if self.enableTranslator:
@@ -110,8 +110,8 @@ class Bot(object):
                         message = u"%s: %s\n\n[Translation] %s" % (nick_name, update_emoji_result, translate_result)
                     else:
                         message = u"%s: %s" % (nick_name, update_emoji_result)
-                    self.channel.send_message(message)# TODO Doesn't look so nice to use `channel` directly.
-                    self.lastWeChatMsg = msg
+                        self.lastWeChatMsg = msg
+                self.channel.send_message(message)# TODO Doesn't look so nice to use `channel` directly.
 
     def process_slack_messages(self, msgs):
         for msg in msgs:
