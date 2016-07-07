@@ -24,11 +24,8 @@ class Bot(object):
         self.wechatGroup = None
         self.wechatClient = WeChatClient()
         self.translator = Translator(googleApikey)
-<<<<<<< 8290855630b3e3e39bd734f8e9263d6d39335fd4
         self.emojiHandler = EmojiHandler()
-=======
         self.media_types = set(['Picture', 'Recording', 'Video'])
->>>>>>> Support forwarding images from Slack to WeChat
 
     def bot_main(self):
         self.channel = self.slackClient.attach_channel(self.channelName)
