@@ -78,9 +78,11 @@ class Bot(object):
                 self.forward_wechat_file(msg)
             else:
                 # TODO Doesn't look so nice to use `channel` directly.
-                updatedMsg = self.emojiHandler.weChat2Slack(msg['Content'], self.translator.toEnglish)
-                self.channel.send_message(msg['ActualNickName'] + ": " + msg['Text'])
-                self.channel.send_message("[Translation]: %s: %s" % (msg['ActualNickName'], updatedMsg))
+                original_msg = msg['Text']
+                nick_name = msg['ActualNickName']
+                updated_msg = self.emojiHandler.weChat2Slack(original_msg, self.translator.toEnglish)
+                self.channel.send_message(nick_name + ": " + original_msg)
+                self.channel.send_message("[Translation]: %s: %s" % (nick_name, updated_msg))
 
     def process_slack_messages(self, msgs):
         for msg in msgs:
@@ -92,9 +94,9 @@ class Bot(object):
                 if u'subtype' in msg and msg[u'subtype'] == u'file_share':
                     self.forward_slack_image(user_name, msg)
                 else:
-                    translatedMsg = self.translator.toChinese(msg[u'text'])
-                    updatedMsg = self.emojiHandler.slack2WeChat(msg[u'text'], self.translator.toChinese)
-                    self.wechatClient.send_msg("%s: %s" % (user_name, msg[u'text']), self.wechatGroup)
+                    original_msg = msg[u'text']
+                    updatedMsg = self.emojiHandler.slack2WeChat(original_msg, self.translator.toChinese)
+                    self.wechatClient.send_msg("%s: %s" % (user_name, original_msg), self.wechatGroup)
                     self.wechatClient.send_msg("[Translation]: %s : %s" % (user_name, updatedMsg), self.wechatGroup)
             else:
                 logging.info("No WeChat group")
