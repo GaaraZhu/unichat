@@ -60,7 +60,7 @@ class Bot(object):
             logging.info("Saving WeChat file to " + file_name)
             download_func(file_name)
             #os.fsync() # Make sure the image is written to disk
-            title = msg['ActualNickName'] + " shared an image"
+            title = msg['ActualNickName'] + " shared a file"
             logging.info("Uploading image to slack: %s" % file_name)
             self.slackClient.send_file_to_channel(self.channel.id, file_name, title)
 
