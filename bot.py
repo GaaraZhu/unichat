@@ -45,6 +45,7 @@ class Bot(object):
             if not self.wechatGroup:
                 self.wechatGroup = msg['FromUserName']
             print("Sending message to slack: %s" % msg['Content'])
+            # TODO Doesn't look so nice to use `channel` directly.
             self.channel.send_message(msg['ActualNickName'] + ": " + msg['Content'])
             translatedMsg = self.translator.toEnglish(msg['Content'])
             self.channel.send_message("[Translation]: %s : %s" % (msg['ActualNickName'], translatedMsg))
@@ -53,9 +54,11 @@ class Bot(object):
         for msg in msgs:
             if self.wechatGroup:
                 print("Sending message to wechat: %s" % msg[u'text'])
+                user_name = self.slackClient.get_user_name(msg[u'user'])
+
                 translatedMsg = self.translator.toChinese(msg[u'text'])
-                self.wechatClient.send_msg("[Translation]: %s" % translatedMsg, self.wechatGroup)
-                self.wechatClient.send_msg(msg[u'text'], self.wechatGroup)
+                self.wechatClient.send_msg("[Translation]: %s : %s" % (user_name, translatedMsg), self.wechatGroup)
+                self.wechatClient.send_msg(user_name + ": " + msg[u'text'], self.wechatGroup)
             else:
                 print("No WeChat group")
 
