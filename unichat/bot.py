@@ -4,11 +4,10 @@ import sys
 import os
 from contextlib import contextmanager
 
-from EmojiHandler import EmojiHandler
-from GoogleApi import Translator
-from slack import UniChatSlackClient
 from itchat.client import client as WeChatClient
-
+from emoji import EmojiHandler
+from translator import Translator
+from slack import UniChatSlackClient
 
 @contextmanager
 def tmp_file():
@@ -99,16 +98,3 @@ class Bot(object):
                     self.wechatClient.send_msg("[Translation]: %s : %s" % (user_name, updatedMsg), self.wechatGroup)
             else:
                 print("No WeChat group")
-
-
-def main():
-    token = sys.argv[1]
-    channel = sys.argv[2]
-    googleApikey = sys.argv[3]
-    bot = Bot(token, channel, googleApikey)
-    print("Starting bot...")
-    bot.bot_main()
-
-
-if __name__ == "__main__":
-    main()
