@@ -1,5 +1,6 @@
 # -​*- coding: utf-8 -*​-
 
+import logging
 
 class EmojiHandler():
     def __init__(self):
@@ -25,9 +26,9 @@ class EmojiHandler():
                 source = source.replace(key, "@@" + str(len(emojis)) + "@@")
                 emojis.append(value)
 
-        print("before translation: " + source)
+        logging.info("before translation: " + source)
         source = callback(source)
-        print("after translation: " + source)
+        logging.info("after translation: " + source)
 
         for emoji in emojis:
             index = emojis.index(emoji)

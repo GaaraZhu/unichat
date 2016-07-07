@@ -1,7 +1,13 @@
 # -​*- coding: utf-8 -*​-
 import sys
+import logging
 from unichat.bot import Bot
 
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(levelname)s [%(asctime)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 def main():
     token = sys.argv[1]

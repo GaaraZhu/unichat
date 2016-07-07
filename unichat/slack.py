@@ -71,7 +71,7 @@ class UniChatSlackClient(object):
                                             file=f,
                                             title=title,
                                             channels=channel)
-            print response
+            logging.debug("File upload response: %s" % response)
             return response[u'ok']
 
     def extract_file(self, msg, file_path):
@@ -87,5 +87,5 @@ class UniChatSlackClient(object):
                     f.write(block)
             return True
         else:
-            print("failed to download image: %s" % r.status_code)
+            logging.info("failed to download image: %s" % r.status_code)
             return False
