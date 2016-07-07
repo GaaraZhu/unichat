@@ -1,0 +1,3 @@
+[submodule "python-slackclient"]
+	path = python-slackclient
+	url = git@github.com:moonranger/python-slackclient.git
