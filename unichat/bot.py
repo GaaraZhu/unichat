@@ -3,6 +3,7 @@ import logging
 import time
 import sys
 import os
+import urllib
 from contextlib import contextmanager
 
 from itchat.client import client as WeChatClient
@@ -87,13 +88,18 @@ class Bot(object):
             else:
                 original_msg = msg['Text']
                 nick_name = msg['ActualNickName']
-                update_emoji_result = self.emojiHandler.weChat2Slack(original_msg, lambda x: x)
-                if self.enableTranslator:
-                    translate_result = self.emojiHandler.weChat2Slack(original_msg, self.translator.toEnglish)
-                    message = u"%s: %s\n\n[Translation] %s" % (nick_name, update_emoji_result, translate_result)
+
+                if u'apis.map.qq.com' in msg[u'Url']:
+                    link = u'https://www.google.com/maps/place/' + urllib.quote(original_msg.split(':')[0])
+                    self.channel.send_message(u"%s: %s" % (nick_name, link))
                 else:
-                     message = u"%s: %s" % (nick_name, update_emoji_result)
-                self.channel.send_message(message)# TODO Doesn't look so nice to use `channel` directly.
+                    update_emoji_result = self.emojiHandler.weChat2Slack(original_msg, lambda x: x)
+                    if self.enableTranslator:
+                        translate_result = self.emojiHandler.weChat2Slack(original_msg, self.translator.toEnglish)
+                        message = u"%s: %s\n\n[Translation] %s" % (nick_name, update_emoji_result, translate_result)
+                    else:
+                        message = u"%s: %s" % (nick_name, update_emoji_result)
+                    self.channel.send_message(message)# TODO Doesn't look so nice to use `channel` directly.
 
     def process_slack_messages(self, msgs):
         for msg in msgs:
