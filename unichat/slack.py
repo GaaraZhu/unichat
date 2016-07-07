@@ -33,7 +33,7 @@ class UniChatSlackClient(object):
         else:
             return user[u'name']
 
-    def attach_channel(self, name):
+    def join_channel(self, name):
         c = self.client.server.channels.find(name)
         if c:
             logging.info("Listening on channel: %s" % c.id)

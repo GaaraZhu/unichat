@@ -27,7 +27,7 @@ class Bot(object):
         self.media_types = set(['Picture', 'Recording', 'Video'])
 
     def bot_main(self):
-        self.channel = self.slackClient.attach_channel(self.channelName)
+        self.channel = self.slackClient.join_channel(self.channelName)
         self.wechatClient.auto_login()
 
         while True:
@@ -36,12 +36,12 @@ class Bot(object):
                 self.process_wechat_messages(group_messages)
                 slack_messages = self.slackClient.read_messages_in_channels()
                 self.process_slack_messages(slack_messages)
+                time.sleep(.5)
             except KeyboardInterrupt:
                 logging.info("Stopping bot...")
                 break
             except:
                 logging.exception("Unexpected error")
-            time.sleep(.5)
 
     def receive_wechat_group_msgs(self):
         client = self.wechatClient
