@@ -19,7 +19,8 @@ class UniChatSlackClient(object):
         self.client = sc
         self.my_id = sc.server.login_data[u'self'][u'id']
         users = sc.server.login_data[u'users']
-        self.team_members = dict([(user[u'id'], self.__name_tag(user)) for user in users])
+        self.team_members = dict(
+            [(user[u'id'], self.__name_tag(user)) for user in users])
         self.related_channels = {}
 
     def __name_tag(self, user):
@@ -32,7 +33,7 @@ class UniChatSlackClient(object):
     def attach_channel(self, name):
         c = self.client.server.channels.find(name)
         if c:
-            logging.info("Listening on channel: %s" % c)
+            logging.info("Listening on channel: %s" % c.id)
             self.related_channels[name] = c
             return c
         else:
@@ -60,3 +61,12 @@ class UniChatSlackClient(object):
 
     def send_message_to_channel(self, channel, message):
         self.client.rtm_send_message(channel, message)
+
+    def send_image_to_channel(self, channel, image_path, title):
+        with open(image_path, 'rb') as f:
+            response = self.client.api_call('files.upload',
+                                            file=f,
+                                            title=title,
+                                            channels=channel)
+            print response
+            return response[u'ok']

@@ -1,6 +1,7 @@
 import logging
 import time
 import sys
+import os
 
 from EmojiHandler import EmojiHandler
 from GoogleApi import Translator
@@ -39,16 +40,32 @@ class Bot(object):
                 msgs.append(msg)
         return msgs
 
+    def forward_wechat_image(self, msg):
+        file_name = os.tmpnam()
+        download_func = msg['Text']
+        print "Saving WeChat image to " + file_name
+        download_func(file_name)
+        #os.fsync() # Make sure the image is written to disk
+        title = msg['ActualNickName'] + " shared an image"
+        print "Uploading image to slack: %s" % file_name
+        self.slackClient.send_image_to_channel(self.channel.id, file_name, title)
+
     def process_wechat_messages(self, msgs):
         for msg in msgs:
             print("WeChat group: %s" % msg['FromUserName'])
             if not self.wechatGroup:
                 self.wechatGroup = msg['FromUserName']
-            print("Sending message to slack: %s" % msg['Content'])
-            # TODO Doesn't look so nice to use `channel` directly.
 
-            updatedMsg = self.emojiHandler.weChat2Slack(msg['Content'], self.translator.toEnglish)
-            self.channel.send_message("[Translation]: %s: %s" % (msg['ActualNickName'], updatedMsg))
+            print("Got WeChat message: %s" % msg)
+            print("Sending message to slack: %s" % msg['Text'])
+
+            if msg['Type'] == 'Picture':
+                self.forward_wechat_image(msg)
+            else:
+                # TODO Doesn't look so nice to use `channel` directly.
+                self.channel.send_message(msg['ActualNickName'] + ": " + msg['Text'])
+                updatedMsg = self.emojiHandler.weChat2Slack(msg['Content'], self.translator.toEnglish)
+                self.channel.send_message("[Translation]: %s: %s" % (msg['ActualNickName'], updatedMsg))
 
     def process_slack_messages(self, msgs):
         for msg in msgs:
