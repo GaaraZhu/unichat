@@ -31,10 +31,16 @@ class Bot(object):
         self.wechatClient.auto_login()
 
         while True:
-            group_messages = self.receive_wechat_group_msgs()
-            self.process_wechat_messages(group_messages)
-            slack_messages = self.slackClient.read_messages_in_channels()
-            self.process_slack_messages(slack_messages)
+            try:
+                group_messages = self.receive_wechat_group_msgs()
+                self.process_wechat_messages(group_messages)
+                slack_messages = self.slackClient.read_messages_in_channels()
+                self.process_slack_messages(slack_messages)
+            except KeyboardInterrupt:
+                logging.info("Stopping bot...")
+                break
+            except:
+                logging.exception("Unexpected error")
             time.sleep(.5)
 
     def receive_wechat_group_msgs(self):
