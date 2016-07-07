@@ -1,0 +1,6 @@
+[Smile]=:smile:
+[Chill]=:sunglasses:
+[Strong]=:+1:
+[Weak]=:-1:
+[Grin]=:grin:
+[Love]=:metal:

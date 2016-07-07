@@ -2,6 +2,7 @@ import logging
 import time
 import sys
 
+from EmojiHandler import EmojiHandler
 from GoogleApi import Translator
 from slack import UniChatSlackClient
 from itchat.client import client as WeChatClient
@@ -14,6 +15,7 @@ class Bot(object):
         self.wechatGroup = None
         self.wechatClient = WeChatClient()
         self.translator = Translator(googleApikey)
+        self.emojiHandler = EmojiHandler()
 
     def bot_main(self):
         self.channel = self.slackClient.attach_channel(self.channelName)
@@ -44,9 +46,9 @@ class Bot(object):
                 self.wechatGroup = msg['FromUserName']
             print("Sending message to slack: %s" % msg['Content'])
             # TODO Doesn't look so nice to use `channel` directly.
-            self.channel.send_message("%s: %s" % (msg['ActualNickName'], msg['Content']))
-            translatedMsg = self.translator.toEnglish(msg['Content'])
-            self.channel.send_message("[Translation]: %s: %s" % (msg['ActualNickName'], translatedMsg))
+
+            updatedMsg = self.emojiHandler.weChat2Slack(msg['Content'], self.translator.toEnglish)
+            self.channel.send_message("[Translation]: %s: %s" % (msg['ActualNickName'], updatedMsg))
 
     def process_slack_messages(self, msgs):
         for msg in msgs:
@@ -54,9 +56,8 @@ class Bot(object):
                 print("Sending message to wechat: %s" % msg[u'text'])
                 user_name = self.slackClient.get_user_name(msg[u'user'])
 
-                translatedMsg = self.translator.toChinese(msg[u'text'])
-                self.wechatClient.send_msg("%s: %s" % (user_name, msg[u'text']), self.wechatGroup)
-                self.wechatClient.send_msg("[Translation]: %s : %s" % (user_name, translatedMsg), self.wechatGroup)
+                updatedMsg = self.emojiHandler.slack2WeChat(msg[u'text'], self.translator.toChinese)
+                self.wechatClient.send_msg("[Translation]: %s : %s" % (user_name, updatedMsg), self.wechatGroup)
 
             else:
                 print("No WeChat group")
