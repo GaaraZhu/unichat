@@ -4,3 +4,4 @@
 [Weak]=:-1:
 [Grin]=:grin:
 [Love]=:metal:
+[Sob]=:sob:
