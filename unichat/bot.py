@@ -27,6 +27,7 @@ class Bot(object):
         self.emojiHandler = EmojiHandler()
         self.media_types = set(['Picture', 'Recording', 'Video', 'Attachment'])
         self.enableTranslator = False
+        self.lastWeChatMsg = None
 
     def bot_main(self):
         self.channel = self.slackClient.join_channel(self.channelName)
@@ -110,6 +111,7 @@ class Bot(object):
                     else:
                         message = u"%s: %s" % (nick_name, update_emoji_result)
                     self.channel.send_message(message)# TODO Doesn't look so nice to use `channel` directly.
+                    self.lastWeChatMsg = msg
 
     def process_slack_messages(self, msgs):
         for msg in msgs:
@@ -124,6 +126,8 @@ class Bot(object):
                 elif u'trans_on' == original_msg:
                     self.enableTranslator = True
                     self.channel.send_message(u"_Translation turned on_")
+                    self.process_wechat_messages([self.lastWeChatMsg])
+                    self.lastWeChatMsg = None
                 elif u'trans_off' == original_msg:
                     self.enableTranslator = False
                     self.channel.send_message(u"_Translation turned off_")
