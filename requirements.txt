@@ -13,7 +13,9 @@ Pygments==2.0.2
 requests==2.10.0
 service-factory==0.1.2
 six==1.10.0
+slackclient==1.0.0
 vboxapi==1.0
 virtualenv==15.0.2
 wcwidth==0.1.6
+websocket-client==0.37.0
 yapf==0.10.0
