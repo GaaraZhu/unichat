@@ -40,7 +40,7 @@ class UniChatSlackClient(object):
             return None
 
     def __is_interesting_message(self, event):
-        if u'type' not in event:
+        if u'type' not in event or u'user' not in event:
             return False
         if event[u'type'] != 'message':
             return False
@@ -60,9 +60,3 @@ class UniChatSlackClient(object):
 
     def send_message_to_channel(self, channel, message):
         self.client.rtm_send_message(channel, message)
-
-    def echo(self):
-        for e in self.read_messages_in_channels():
-            channel = e[u'channel']
-            message = u'Reply: %s' % e[u'text']
-            print "Replying message: %s" % message
