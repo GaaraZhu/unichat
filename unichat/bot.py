@@ -86,7 +86,7 @@ class Bot(object):
             return True
         return False
 
-    def process_wechat_messages(self, msgs):
+    def process_wechat_messages(self, msgs, replay = False):
         for msg in msgs:
             logging.info("WeChat group: %s" % msg['FromUserName'])
             if not self.wechatGroup:
@@ -107,7 +107,10 @@ class Bot(object):
                     update_emoji_result = self.emojiHandler.weChat2Slack(original_msg, lambda x: x)
                     if self.enableTranslator:
                         translate_result = self.emojiHandler.weChat2Slack(original_msg, self.translator.toEnglish)
-                        message = u"%s: %s\n\n[Translation] %s" % (nick_name, update_emoji_result, translate_result)
+                        if replay:
+                            message = u"%s: [Translation of last message] %s" % (nick_name, translate_result)
+                        else:
+                            message = u"%s: %s\n\n[Translation] %s" % (nick_name, update_emoji_result, translate_result)
                     else:
                         message = u"%s: %s" % (nick_name, update_emoji_result)
                         self.lastWeChatMsg = msg
@@ -126,7 +129,7 @@ class Bot(object):
                 elif u'trans_on' == original_msg:
                     self.enableTranslator = True
                     self.channel.send_message(u"_Translation turned on_")
-                    self.process_wechat_messages([self.lastWeChatMsg])
+                    self.process_wechat_messages([self.lastWeChatMsg], True)
                     self.lastWeChatMsg = None
                 elif u'trans_off' == original_msg:
                     self.enableTranslator = False
