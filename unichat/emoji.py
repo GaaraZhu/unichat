@@ -33,6 +33,7 @@ class EmojiHandler():
         for emoji in emojis:
             index = emojis.index(emoji)
             #ugly space caused by google translate api lol
+            source = source.replace("@@" + str(index) + "@@", emoji)
             source = source.replace("@@ " + str(index) + " @@", emoji)
 
         return source
