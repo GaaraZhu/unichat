@@ -25,8 +25,10 @@ class UniChatSlackClient(object):
         if c:
             logging.info("Listening on channel: %s" % c)
             self.related_channels[name] = c
+            return c
         else:
             logging.info("Channel %s not found" % name)
+            return None
 
     def __is_interesting_message(self, event):
         if u'type' not in event:
@@ -42,14 +44,13 @@ class UniChatSlackClient(object):
 
     def read_messages_in_channels(self):
         events = self.client.rtm_read()
-        return itertools.ifilter(self.__is_interesting_message, events)
+        return [e for e in events if self.__is_interesting_message(e)]
 
     def send_message_to_channel(self, channel, message):
-        pass
+        self.client.rtm_send_message(channel, message)
 
     def echo(self):
         for e in self.read_messages_in_channels():
             channel = e[u'channel']
             message = u'Reply: %s' % e[u'text']
             print "Replying message: %s" % message
-            self.client.rtm_send_message(channel, message)
