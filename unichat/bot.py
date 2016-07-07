@@ -2,8 +2,8 @@
 import logging
 import time
 import sys
-import os
 import urllib
+import tempfile
 from contextlib import contextmanager
 
 from itchat.client import client as WeChatClient
@@ -12,11 +12,10 @@ from translator import Translator
 from slack import UniChatSlackClient
 
 @contextmanager
-def tmp_file():
-    tmp_filename = os.tmpnam()
-    yield tmp_filename
-    os.unlink(tmp_filename)
-
+def tmp_file(name_suffix):
+    temp_file = tempfile.NamedTemporaryFile(suffix = name_suffix)
+    yield temp_file.name
+    temp_file.close
 
 class Bot(object):
     def __init__(self, token, channelName, googleApikey):
@@ -58,7 +57,7 @@ class Bot(object):
         return msgs
 
     def forward_wechat_file(self, msg):
-        with tmp_file() as file_name:
+        with tmp_file('') as file_name:
             download_func = msg['Text']
             logging.info("Saving WeChat file to " + file_name)
             download_func(file_name)
@@ -68,12 +67,23 @@ class Bot(object):
             self.slackClient.send_file_to_channel(self.channel.id, file_name, title)
 
     def forward_slack_image(self, user_name, msg):
-        with tmp_file() as file_name:
-            logging.info("Saving Slack image to " + file_name)
+        suffix = "." + msg[u'file'][u'url_private'].split(".")[-1]
+        with tmp_file(suffix) as file_name:
+            logging.info("Saving Slack file to " + file_name)
             if self.slackClient.extract_file(msg, file_name):
-                logging.info("Uploading image to WeChat: %s" % file_name)
                 self.wechatClient.send_msg("%s shared a file: %s" % (user_name, msg[u'file'][u'name']), self.wechatGroup)
-                self.wechatClient.send_image(file_name, self.wechatGroup)
+                if self._isImgFile(suffix):
+                    logging.info("Uploading image to WeChat: %s" % file_name)
+                    self.wechatClient.send_image(file_name, self.wechatGroup)
+                else:
+                    logging.info("Uploading file to WeChat: %s" % file_name)
+                    self.wechatClient.send_file(file_name, self.wechatGroup)
+    
+    def _isImgFile(self, suffix):
+        imgSuffix = ['.jpg', '.jpeg', '.gif', '.png', '.gif', '.bmp']
+        if suffix.lower() in imgSuffix:
+            return True
+        return False
 
     def process_wechat_messages(self, msgs):
         for msg in msgs:
