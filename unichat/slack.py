@@ -60,7 +60,7 @@ class UniChatSlackClient(object):
 
     def read_messages_in_channels(self):
         events = self.client.rtm_read()
-        return [post_process_event(e) for e in events if self.__is_interesting_message(e)]
+        return [self.post_process_event(e) for e in events if self.__is_interesting_message(e)]
 
     def send_message_to_channel(self, channel, message):
         self.client.rtm_send_message(channel, message)
@@ -90,8 +90,7 @@ class UniChatSlackClient(object):
             logging.info("failed to download image: %s" % r.status_code)
             return False
 
-     def post_process_event(self, event):
-         mentioned_key = u'<@%s>' % self.my_id
-         is_self_mentioned = mentioned_key in event[u'text']
-         event[u'is_mentioned'] = is_self_mentioned
-         return event
+    def post_process_event(self, event):
+        mentioned_key = u'<@%s>' % self.my_id
+        event[u'is_mentioned'] = mentioned_key in event[u'text']
+        return event
