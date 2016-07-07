@@ -25,6 +25,7 @@ class Bot(object):
         self.translator = Translator(googleApikey)
         self.emojiHandler = EmojiHandler()
         self.media_types = set(['Picture', 'Recording', 'Video'])
+        self.enableTranslator = False
 
     def bot_main(self):
         self.channel = self.slackClient.join_channel(self.channelName)
@@ -99,10 +100,19 @@ class Bot(object):
 
                 if u'subtype' in msg and msg[u'subtype'] == u'file_share':
                     self.forward_slack_image(user_name, msg)
-                else:
+                elif msg[u'is_mentioned']:
                     original_msg = msg[u'text']
-                    updatedMsg = self.emojiHandler.slack2WeChat(original_msg, self.translator.toChinese)
-                    self.wechatClient.send_msg("%s: %s" % (user_name, original_msg), self.wechatGroup)
-                    self.wechatClient.send_msg("[Translation]: %s : %s" % (user_name, updatedMsg), self.wechatGroup)
+                    if u'!trans_on' in original_msg:
+                        self.enableTranslator = True
+                    elif u'!trans_off' in original_msg:
+                        self.enableTranslator = False
+                    else:
+                        self.wechatClient.send_msg("%s: %s" % (user_name, original_msg), self.wechatGroup)
+                        if self.enableTranslator:
+                            updatedMsg = self.emojiHandler.slack2WeChat(original_msg, self.translator.toChinese)
+                            self.wechatClient.send_msg("[Translation]: %s : %s" % (user_name, updatedMsg), self.wechatGroup)
+                        else:
+                            updatedMsg = self.emojiHandler.slack2WeChat(original_msg, lambda x: x)
+                        
             else:
                 logging.info("No WeChat group")
