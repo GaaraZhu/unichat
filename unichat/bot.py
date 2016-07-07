@@ -105,13 +105,12 @@ class Bot(object):
                 
                 if u'subtype' in msg and msg[u'subtype'] == u'file_share':
                     self.forward_slack_image(user_name, msg)
-                elif msg[u'is_mentioned']:
-                    if u'trans_on' in original_msg:
-                        self.enableTranslator = True
-                        self.channel.send_message(u"_Translation turned on_")
-                    elif u'trans_off' in original_msg:
-                        self.enableTranslator = False
-                        self.channel.send_message(u"_Translation turned off_")
+                elif u'trans_on' == original_msg:
+                    self.enableTranslator = True
+                    self.channel.send_message(u"_Translation turned on_")
+                elif u'trans_off' == original_msg:
+                    self.enableTranslator = False
+                    self.channel.send_message(u"_Translation turned off_")
                 else:
                     update_emoji_result = self.emojiHandler.slack2WeChat(original_msg, lambda x: x)
                     if self.enableTranslator:
