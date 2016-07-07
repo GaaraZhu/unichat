@@ -43,6 +43,7 @@ class Bot(object):
             if not self.wechatGroup:
                 self.wechatGroup = msg['FromUserName']
             print("Sending message to slack: %s" % msg['Content'])
+            # TODO Doesn't look so nice to use `channel` directly.
             self.channel.send_message(msg['ActualNickName'] + ": " + msg['Content'])
 
     def process_slack_messages(self, msgs):
