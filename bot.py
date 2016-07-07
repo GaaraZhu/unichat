@@ -2,6 +2,7 @@ import logging
 import time
 import sys
 
+from EmojiHandler import EmojiHandler
 from slack import UniChatSlackClient
 from itchat.client import client as WeChatClient
 
@@ -12,6 +13,7 @@ class Bot(object):
         self.wechatClient = WeChatClient()
         self.slackClient = UniChatSlackClient(token)
         self.wechatGroup = None
+        self.emojiHandler = EmojiHandler()
 
     def bot_main(self):
         self.channel = self.slackClient.attach_channel(self.channelName)
@@ -44,14 +46,17 @@ class Bot(object):
                 self.wechatGroup = msg['FromUserName']
             print("Sending message to slack: %s" % msg['Content'])
             # TODO Doesn't look so nice to use `channel` directly.
-            self.channel.send_message(msg['ActualNickName'] + ": " + msg['Content'])
+            emojiConvertedMsg = self.emojiHandler.wechat2Slack(msg['Content'])
+            self.channel.send_message(msg['ActualNickName'] + ": " + emojiConvertedMsg)
 
     def process_slack_messages(self, msgs):
         for msg in msgs:
             if self.wechatGroup:
                 print("Sending message to wechat: %s" % msg[u'text'])
                 user_name = self.slackClient.get_user_name(msg[u'user'])
-                self.wechatClient.send_msg(user_name + ": " + msg[u'text'], self.wechatGroup)
+                emojiConvertedMsg = self.emojiHandler.slack2WeChat(msg[u'text'])
+                print("Sending converted message to wechat: %s" % emojiConvertedMsg)
+                self.wechatClient.send_msg(user_name + ": " + emojiConvertedMsg, self.wechatGroup)
             else:
                 print("No WeChat group")
 
