@@ -1,6 +1,6 @@
 # Unichat
 
-A bot that connects different IM services.
+It connects Slack with other IM services, like WeChat, Line(future release) and etc.
 
 ## Install
 
@@ -31,4 +31,4 @@ python main.py <slack_token> <slack_channel> <gapi_token>
 ```
 
 A QR code image should pop up. Scan the QR code with mobile WeChat to start the
-bot (log in with the bot account first).
+bot (send messages from WeChat/Line first to start the conversaction).
