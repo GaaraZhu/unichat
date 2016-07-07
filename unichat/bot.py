@@ -89,7 +89,7 @@ class Bot(object):
                 nick_name = msg['ActualNickName']
                 update_emoji_result = self.emojiHandler.weChat2Slack(original_msg, lambda x: x)
                 if self.enableTranslator:
-                    translate_result = self.emojiHandler.slack2WeChat(original_msg, self.translator.toEnglish)
+                    translate_result = self.emojiHandler.weChat2Slack(original_msg, self.translator.toEnglish)
                     message = u"%s: %s\n\n[Translation] %s" % (nick_name, update_emoji_result, translate_result)
                 else:
                      message = u"%s: %s" % (nick_name, update_emoji_result)
@@ -101,24 +101,26 @@ class Bot(object):
                 logging.debug("Got slack message: %s" % msg)
                 logging.info("Sending message to wechat: %s" % msg[u'text'])
                 user_name = self.slackClient.get_user_name(msg[u'user'])
-
+                original_msg = msg[u'text']
+                
                 if u'subtype' in msg and msg[u'subtype'] == u'file_share':
                     self.forward_slack_image(user_name, msg)
                 elif msg[u'is_mentioned']:
-                    original_msg = msg[u'text']
-                    if u'!trans_on' in original_msg:
+                    if u'trans_on' in original_msg:
                         self.enableTranslator = True
-                    elif u'!trans_off' in original_msg:
+                        self.channel.send_message(u"_Translation turned on_")
+                    elif u'trans_off' in original_msg:
                         self.enableTranslator = False
+                        self.channel.send_message(u"_Translation turned off_")
+                else:
+                    update_emoji_result = self.emojiHandler.slack2WeChat(original_msg, lambda x: x)
+                    if self.enableTranslator:
+                        translate_result = self.emojiHandler.slack2WeChat(original_msg, self.translator.toChinese)
+                        message = u"%s: %s\n\n[翻译] %s" % (user_name, update_emoji_result, translate_result)
                     else:
-                        update_emoji_result = self.emojiHandler.slack2WeChat(original_msg, lambda x: x)
-                        if self.enableTranslator:
-                            translate_result = self.emojiHandler.slack2WeChat(original_msg, self.translator.toChinese)
-                            message = u"%s: %s\n\n[翻译] %s" % (user_name, update_emoji_result, translate_result)
-                        else:
-                            message = "%s: %s" % (user_name, update_emoji_result)
+                        message = "%s: %s" % (user_name, update_emoji_result)
 
-                        self.wechatClient.send_msg(message, self.wechatGroup)
+                    self.wechatClient.send_msg(message, self.wechatGroup)
                         
             else:
                 logging.info("No WeChat group")
