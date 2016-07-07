@@ -4,11 +4,10 @@ import sys
 import os
 from contextlib import contextmanager
 
-from EmojiHandler import EmojiHandler
-from GoogleApi import Translator
-from slack import UniChatSlackClient
 from itchat.client import client as WeChatClient
-
+from emoji import EmojiHandler
+from translator import Translator
+from slack import UniChatSlackClient
 
 @contextmanager
 def tmp_file():
@@ -52,29 +51,29 @@ class Bot(object):
     def forward_wechat_file(self, msg):
         with tmp_file() as file_name:
             download_func = msg['Text']
-            print "Saving WeChat file to " + file_name
+            logging.info("Saving WeChat file to " + file_name)
             download_func(file_name)
             #os.fsync() # Make sure the image is written to disk
             title = msg['ActualNickName'] + " shared an image"
-            print "Uploading image to slack: %s" % file_name
+            logging.info("Uploading image to slack: %s" % file_name)
             self.slackClient.send_file_to_channel(self.channel.id, file_name, title)
 
     def forward_slack_image(self, user_name, msg):
         with tmp_file() as file_name:
-            print "Saving Slack image to " + file_name
+            logging.info("Saving Slack image to " + file_name)
             if self.slackClient.extract_file(msg, file_name):
-                print "Uploading image to WeChat: %s" % file_name
+                logging.info("Uploading image to WeChat: %s" % file_name)
                 self.wechatClient.send_msg("%s shared a file: %s" % (user_name, msg[u'file'][u'name']), self.wechatGroup)
                 self.wechatClient.send_image(file_name, self.wechatGroup)
 
     def process_wechat_messages(self, msgs):
         for msg in msgs:
-            print("WeChat group: %s" % msg['FromUserName'])
+            logging.info("WeChat group: %s" % msg['FromUserName'])
             if not self.wechatGroup:
                 self.wechatGroup = msg['FromUserName']
 
-            print("Got WeChat message: %s" % msg)
-            print("Sending message to slack: %s" % msg['Text'])
+            logging.debug("Got WeChat message: %s" % msg)
+            logging.info("Sending message to slack: %s" % msg['Text'])
             if msg['Type'] in self.media_types:
                 self.forward_wechat_file(msg)
             else:
@@ -86,8 +85,8 @@ class Bot(object):
     def process_slack_messages(self, msgs):
         for msg in msgs:
             if self.wechatGroup:
-                print("Got slack message: %s" % msg)
-                print("Sending message to wechat: %s" % msg[u'text'])
+                logging.debug("Got slack message: %s" % msg)
+                logging.info("Sending message to wechat: %s" % msg[u'text'])
                 user_name = self.slackClient.get_user_name(msg[u'user'])
 
                 if u'subtype' in msg and msg[u'subtype'] == u'file_share':
@@ -98,17 +97,4 @@ class Bot(object):
                     self.wechatClient.send_msg("%s: %s" % (user_name, msg[u'text']), self.wechatGroup)
                     self.wechatClient.send_msg("[Translation]: %s : %s" % (user_name, updatedMsg), self.wechatGroup)
             else:
-                print("No WeChat group")
-
-
-def main():
-    token = sys.argv[1]
-    channel = sys.argv[2]
-    googleApikey = sys.argv[3]
-    bot = Bot(token, channel, googleApikey)
-    print("Starting bot...")
-    bot.bot_main()
-
-
-if __name__ == "__main__":
-    main()
+                logging.info("No WeChat group")

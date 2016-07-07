@@ -1,3 +1,4 @@
+# -​*- coding: utf-8 -*​-
 import logging
 import itertools
 import requests
@@ -70,12 +71,12 @@ class UniChatSlackClient(object):
                                             file=f,
                                             title=title,
                                             channels=channel)
-            print response
+            logging.debug("File upload response: %s" % response)
             return response[u'ok']
 
     def extract_file(self, msg, file_path):
         file_url = msg[u'file'][u'url_private']
-        return self.download_image(file_url, file_path)
+        return self.download_file(file_url, file_path)
 
     def download_file(self, file_url, file_path):
         headers = {"Authorization": "Bearer %s" % self.token}
@@ -86,5 +87,5 @@ class UniChatSlackClient(object):
                     f.write(block)
             return True
         else:
-            print("failed to download image: %s" % r.status_code)
+            logging.info("failed to download image: %s" % r.status_code)
             return False

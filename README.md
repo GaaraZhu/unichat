@@ -27,7 +27,7 @@ pip install python-slackclient/
 To run the bot
 
 ```
-python bot.py <slack_token> <slack_channel> <gapi_token>
+python main.py <slack_token> <slack_channel> <gapi_token>
 ```
 
 A QR code image should pop up. Scan the QR code with mobile WeChat to start the
