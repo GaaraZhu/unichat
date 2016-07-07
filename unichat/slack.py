@@ -76,7 +76,7 @@ class UniChatSlackClient(object):
 
     def extract_file(self, msg, file_path):
         file_url = msg[u'file'][u'url_private']
-        return self.download_image(file_url, file_path)
+        return self.download_file(file_url, file_path)
 
     def download_file(self, file_url, file_path):
         headers = {"Authorization": "Bearer %s" % self.token}
