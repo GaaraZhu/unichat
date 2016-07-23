@@ -37,11 +37,18 @@ pip install python-slackclient/
 
 ## Run
 
-To run unichat
+### Prerequisite
+* Need to have a Slack account acting as the bot serivce that will interact with WeChat, and it's supposed to be invited into a Slack channel.
+* Need to have a WeChat account which will interact with Slack, and it's supposed to be invited into a WeChat group.
+* Need to have a google api token in order to enable the translation(will make it optional in future release for people who don't need the translation functionality).
+### Run
+* Run unichat:
 
-```
-python main.py <slack_token> <slack_channel> <gapi_token>
-```
+  ```
+  python main.py <slack_token> <slack_channel> <gapi_token>
+  ```
+  A QR code image should pop up. Scan the QR code with mobile WeChat to start the journey (send messages from WeChat/Line first to start the conversaction).
 
-A QR code image should pop up. Scan the QR code with mobile WeChat to start the
-journey (send messages from WeChat/Line first to start the conversaction).
+* Now people in the Slack channel can communicate with the people in the WeChat group(to enable/disable the translation, type trans_on/trans_off inside the Slack channel).
+
+
