@@ -1,4 +1,6 @@
 # Unichat
+## Demo
+https://www.youtube.com/watch?v=cpermWDXwcE
 
 ## Background
 As one of the world's most popular team collaboration tools, Slack is quite hot these years. When solving problems with our Chinese customers, they prefer to use WeChat as the communication tool. The drawbacks of using WeChat in that context are:
@@ -50,5 +52,4 @@ pip install python-slackclient/
   A QR code image should pop up. Scan the QR code with mobile WeChat to start the journey (send messages from WeChat/Line first to start the conversaction).
 
 * Now people in the Slack channel can communicate with the people in the WeChat group(to enable/disable the translation, type trans_on/trans_off inside the Slack channel).
-
 
